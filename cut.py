@@ -154,8 +154,8 @@ def crop(path, exception=False):
                 cnt += 1
 
 def main():
-    dirname = 'yuyushiki6'
-    exception_pages = range(1,13) + [51,52,69,70,95,112] + range(121,127)
+    dirname = 'newgame'
+    exception_pages = [1,2] + range(4,13) + [20,28,44,70,78,96] + range(121,125)
     path = Path(dirname)
     try:
         (path / 'output').mkdir(mode=0o755)
