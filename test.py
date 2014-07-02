@@ -86,14 +86,29 @@ def store(xs, ys):
 
 def nearest(xs, ys):
     global x1, x2, y1
-    
+    near = 5000
+    nx, ny = 0, 0
+    for x_ in x1 + x2:
+        for x in xs:
+            diff = np.abs(x - x_)
+            if diff < near:
+                near = diff
+                nx = x
+    near = 5000
+    for y_ in y1:
+        for y in ys:
+            diff = np.abs(y - y_)
+            if diff < near:
+                near = diff
+                ny = y
+    return nx, ny
 
 def estimate(xs, ys, h):
     global nxs, nys, n
-    if (len(ys) == 8 and len(xs) == 4) or n == 0:
+    if len(ys) == 8 and len(xs) == 4:
         store(xs, ys)
         return xs, ys
-    else:
+    elif n != 0:
         #print(xs[0], ys[-1])
         xs_ = map(lambda x:x/n, nxs)
         ys_ = map(lambda y:y/n, nys)
@@ -103,6 +118,8 @@ def estimate(xs, ys, h):
         est_xs = [x0 + x for x in xs_]
         est_ys = [y0 + y for y in ys_]
         return est_xs, est_ys
+    else:
+        return xs, ys
 
 def crop(path):
     filename = path.as_posix()
@@ -127,7 +144,7 @@ def crop(path):
         cv2.line(im_out, (x, 0), (x, h), (0,0,255), 2)
     for y in ys:
         cv2.line(im_out, (0, y), (w, y), (0,0,255), 2)
-    #show(im_out)
+    show(im_out)
     
 def main():
     for i in range(2,14):
