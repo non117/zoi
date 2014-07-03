@@ -107,7 +107,7 @@ def estimate(xs, ys, h):
     else:
         return xs, ys
 
-def crop(path, exception=False):
+def crop(path, exception=False, firstpath=False):
     filename = path.as_posix()
     print(filename)
     im_in = cv2.imread(filename)
@@ -129,6 +129,8 @@ def crop(path, exception=False):
 
     if not exception:
         xs, ys = estimate(xs, ys, h)
+    if firstpath:
+        return
     
     # debug
     #for x in xs:
@@ -154,8 +156,8 @@ def crop(path, exception=False):
                 cnt += 1
 
 def main():
-    dirname = 'newgame'
-    exception_pages = range(1,14) + [21,23,24,29,45,71,79,97] + range(122,125)
+    dirname = 'yuyushiki1'
+    exception_pages = range(1,13) + [16,23,48,49,88,89,98] + range(120,127)
     path = Path(dirname)
     try:
         (path / 'output').mkdir(mode=0o755)
@@ -166,9 +168,18 @@ def main():
         if(p.suffix in ('.png', '.jpg')):
             no = int(p.stem.replace('_',''))
             if no in exception_pages:
-                crop(p, True)
+                crop(p, exception=True, firstpath=True)
+            else:
+                crop(p, firstpath=True)
+
+    for p in paths:
+        if(p.suffix in ('.png', '.jpg')):
+            no = int(p.stem.replace('_',''))
+            if no in exception_pages:
+                crop(p, exception=True)
             else:
                 crop(p)
+
 
 if __name__ == '__main__':
     main()
