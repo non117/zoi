@@ -47,7 +47,8 @@ def clean(seq):
             else:
                 xs.append(x)
         prev = x
-    xs.append(int(np.average(temp)))
+    if temp:
+        xs.append(int(np.average(temp)))
     return xs
 
 def determine(seq):
@@ -138,7 +139,7 @@ def crop(path):
     #plt.plot(diff(yoko))
     #plt.plot(diff(tate))
     #plt.show()
-    xs, ys = estimate(xs, ys, h)
+    #xs, ys = estimate(xs, ys, h)
     
     for x in xs:
         cv2.line(im_out, (x, 0), (x, h), (0,0,255), 2)
@@ -147,7 +148,7 @@ def crop(path):
     show(im_out)
     
 def main():
-    for i in range(2,14):
+    for i in range(14,16):
         filename = 'test{0}.png'.format(i)
         path = Path(filename)
         crop(path)

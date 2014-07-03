@@ -23,13 +23,13 @@ def clean(seq):
     xs = []
     temp = []
     prev = seq[0]
-    for x in seq[1:]:
+    for x in seq:
         if x - prev < 20:
             temp.append(x)
         else:
             if temp:
                 xs.append(int(np.average(temp)))
-                temp = []
+                temp = [x]
             else:
                 xs.append(x)
         prev = x
@@ -39,7 +39,7 @@ def clean(seq):
 
 def determine(seq):
     xs = []
-    th = max(seq) / 2
+    th = max(seq) / 2.07
     for i, x in enumerate(seq):
         if np.abs(x) > th:
             xs.append(i)
@@ -96,13 +96,14 @@ def estimate(xs, ys, h):
         store(xs, ys)
         return xs, ys
     elif n != 0:
+        print('estimated.')
         xs_ = map(lambda x:x/n, nxs)
         ys_ = map(lambda y:y/n, nys)
         yoffset = ys_[7] - ys_[0]
         x0, y_ = nearest(xs, ys)
         y0 = y_ - yoffset
-        est_xs = [x0 + x for x in xs_]
-        est_ys = [y0 + y for y in ys_]
+        est_xs = [int(x0 + x) for x in xs_]
+        est_ys = [int(y0 + y) for y in ys_]
         return est_xs, est_ys
     else:
         return xs, ys
@@ -139,6 +140,7 @@ def crop(path, exception=False, firstpath=False):
     #    cv2.line(im_out, (0, y), (w, y), (0,0,255), 2)
     #new_path = path.parent / 'test{0}'.format(path.name)
     #cv2.imwrite(new_path.as_posix(), im_out)
+    #return
     
     name, ext = path.stem, path.suffix
     new_dir = path.parent / 'output' 
@@ -157,7 +159,8 @@ def crop(path, exception=False, firstpath=False):
 
 def main():
     dirname = 'yuyushiki1'
-    exception_pages = range(1,13) + [16,23,48,49,88,89,98] + range(120,127)
+    exception_pages = range(1,13) + [17] + range(120,126)
+    errors = [17,25,64,98,99]
     path = Path(dirname)
     try:
         (path / 'output').mkdir(mode=0o755)
@@ -175,6 +178,8 @@ def main():
     for p in paths:
         if(p.suffix in ('.png', '.jpg')):
             no = int(p.stem.replace('_',''))
+            if no not in errors:
+                continue
             if no in exception_pages:
                 crop(p, exception=True)
             else:
