@@ -6,12 +6,14 @@ import pylab as plt
 from pathlib import Path
 
 def show(im):
+    # debug用
     b, g, r = cv2.split(im)
     im = cv2.merge([r,g,b])
     plt.imshow(im)
     plt.show()
 
 def diff(seq):
+    # 微分
     prev = seq[0]
     new_seq = []
     for x in seq:
@@ -20,6 +22,7 @@ def diff(seq):
     return new_seq
 
 def clean(seq):
+    # 連続した値から代表値を抽出する
     xs = []
     temp = []
     prev = seq[0]
@@ -38,6 +41,7 @@ def clean(seq):
     return xs
 
 def determine(seq):
+    # ヒストグラムの微分値から濃淡変化の大きい行, 列を探す
     xs = []
     th = max(seq) / 2.07
     for i, x in enumerate(seq):
@@ -46,6 +50,7 @@ def determine(seq):
     return clean(xs)
 
 def normalize(seq):
+    # 紙面座標系からコマの座標系に正規化
     offset = seq[0]
     return [x - offset for x in seq]
 
@@ -57,6 +62,7 @@ x2 = []
 y1 = []
 
 def store(xs, ys):
+    # グローバル変数にコマの座標を貯める
     global nxs, nys, n, x1, x2, y1
     y1.append(ys[-1])
     if n == 0:
@@ -72,6 +78,7 @@ def store(xs, ys):
     n += 1
 
 def nearest(xs, ys):
+    # x, yに最も近いxs, ys内の座標を探す
     global x1, x2, y1
     near = 5000
     nx, ny = 0, 0
@@ -91,6 +98,7 @@ def nearest(xs, ys):
     return nx, ny
 
 def estimate(xs, ys, h):
+    # コマ座標が抽出できていればそのまま、なければ推定する
     global nxs, nys, n
     if len(ys) == 8 and len(xs) == 4:
         store(xs, ys)
