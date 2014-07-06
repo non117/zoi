@@ -142,13 +142,14 @@ def crop(path, exception=False, firstpath=False):
         return
     
     # debug
-    #for x in xs:
-    #    cv2.line(im_out, (x, 0), (x, h), (0,0,255), 2)
-    #for y in ys:
-    #    cv2.line(im_out, (0, y), (w, y), (0,0,255), 2)
-    #new_path = path.parent / 'test{0}'.format(path.name)
-    #cv2.imwrite(new_path.as_posix(), im_out)
-    #return
+    if True:
+        for x in xs:
+            cv2.line(im_out, (x, 0), (x, h), (0,0,255), 2)
+        for y in ys:
+            cv2.line(im_out, (0, y), (w, y), (0,0,255), 2)
+        new_path = path.parent / 'test{0}'.format(path.name)
+        cv2.imwrite(new_path.as_posix(), im_out)
+        return
     
     name, ext = path.stem, path.suffix
     new_dir = path.parent / 'output' 
@@ -166,9 +167,9 @@ def crop(path, exception=False, firstpath=False):
                 cnt += 1
 
 def main():
-    dirname = 'yuyushiki1'
-    exception_pages = range(1,13) + [17] + range(120,126)
-    errors = [17,25,64,98,99]
+    dirname = 'yuyushiki2'
+    exception_pages = range(1,12) + [] + range(120,127)
+    errors = [17]
     path = Path(dirname)
     try:
         (path / 'output').mkdir(mode=0o755)
@@ -186,8 +187,8 @@ def main():
     for p in paths:
         if(p.suffix in ('.png', '.jpg')):
             no = int(p.stem.replace('_',''))
-            if no not in errors:
-                continue
+            #if no not in errors:
+            #    continue
             if no in exception_pages:
                 crop(p, exception=True)
             else:
