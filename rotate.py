@@ -15,12 +15,15 @@ def hough(filename):
     im_in = cv2.imread(filename)
     im_out = cv2.imread(filename)
     im_gray = cv2.cvtColor(im_in,cv2.COLOR_BGR2GRAY)
+    # ノイズ除去
+    im_gray = cv2.medianBlur(im_gray, 5)
     # グレースケール画像を2値化
     im_th = cv2.adaptiveThreshold(im_gray,50,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,cv2.THRESH_BINARY,11,2)
     # 2値化画像からエッジを検出
     im_edge = cv2.Canny(im_th,50,150,apertureSize = 3)
     # エッジ画像から直線の検出
-    lines = cv2.HoughLines(im_edge,2,np.pi/180,200)
+    lines = cv2.HoughLines(im_edge,1,np.pi/180,300)
+    thetas = []
     # 直線の描画
     for rho,theta in lines[0]:
         a = np.cos(theta)
@@ -31,14 +34,19 @@ def hough(filename):
         y1 = int(y0 + 1000*(a))
         x2 = int(x0 - 1000*(-b))
         y2 = int(y0 - 1000*(a))
+        if rho > 2200:
+            print(rho, theta*180/np.pi)
+            thetas.append(theta*180/np.pi)
         cv2.line(im_out,(x1,y1),(x2,y2),(0,0,255),2)
     show(im_out)
-
+    degree = np.average(thetas) - 90
+    print(degree)
+    Image.open(filename).rotate(degree).show()
 
 def main():
-    filename = 'yuyushiki2/_'
+    filename = 'test/test17.png'
     hough(filename)
-    angle = 0
-    a, b = filename.split('.')
-    #Image.open(filename).rotate(angle).show()
-    #Image.open(filename).rotate(angle).save(a + '_' + b)
+
+if __name__ == '__main__':
+    main()
+
