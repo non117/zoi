@@ -2,7 +2,6 @@
 import cv2
 import numpy as np
 import pylab as plt
-from PIL import Image
 
 def show(im):
     # debug用
@@ -10,6 +9,11 @@ def show(im):
     im = cv2.merge([r,g,b])
     plt.imshow(im)
     plt.show()
+
+def rotate(im, angle):
+    h, w, _ = im.shape
+    mat = cv2.getRotationMatrix2D((h/2, w/2), angle, 1)
+    return cv2.warpAffine(im, mat, (w, h))
 
 def hough(filename):
     im_in = cv2.imread(filename)
@@ -41,10 +45,11 @@ def hough(filename):
     show(im_out)
     degree = np.average(thetas) - 90
     print(degree)
-    Image.open(filename).rotate(degree).show()
+    im = rotate(im_in, degree)
+    cv2.imwrite("hoge.png", im)
 
 def main():
-    filename = 'test/test17.png'
+    filename = 'test/test16.png'
     hough(filename)
 
 if __name__ == '__main__':

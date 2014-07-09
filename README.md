@@ -5,7 +5,6 @@ zoiとは4コマ漫画の画像からコマを抽出するツール群です。
 ### 依存関係
 * Python 2.x
 * OpenCV 2.x
-* Python Imaging Library ( Pillow )
 * pathlib
 * numpy
 * matplotlib
