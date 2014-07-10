@@ -21,6 +21,23 @@ def diff(seq):
         prev = x
     return new_seq
 
+def rotate(im, angle):
+    # 大回転
+    h, w, _ = im.shape
+    mat = cv2.getRotationMatrix2D((h/2, w/2), angle, 1)
+    return cv2.warpAffine(im, mat, (w, h)) 
+
+def hough(im_gray, threshold=300):
+    # ノイズ除去
+    im_gray = cv2.medianBlur(im_gray, 5)
+    # グレースケール画像を2値化
+    im_th = cv2.adaptiveThreshold(im_gray,50,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,cv2.THRESH_BINARY,11,2)
+    # 2値化画像からエッジを検出
+    im_edge = cv2.Canny(im_th,50,150,apertureSize = 3)
+    # エッジ画像から直線の検出
+    lines = cv2.HoughLines(im_edge,1,np.pi/180,threshold)
+    return lines
+
 def clean(seq):
     # 連続した値から代表値を抽出する
     xs = []
@@ -115,6 +132,9 @@ def estimate(xs, ys, h):
         return est_xs, est_ys
     else:
         return xs, ys
+
+def detect_slope(im_gray):
+    pass
 
 def crop(path, exception=False, firstpath=False):
     filename = path.as_posix()

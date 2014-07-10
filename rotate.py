@@ -2,6 +2,7 @@
 import cv2
 import numpy as np
 import pylab as plt
+from pathlib import Path
 
 def show(im):
     # debug用
@@ -15,7 +16,9 @@ def rotate(im, angle):
     mat = cv2.getRotationMatrix2D((h/2, w/2), angle, 1)
     return cv2.warpAffine(im, mat, (w, h))
 
-def hough(filename):
+def hough(path):
+    filename = path.as_posix()
+    print(filename)
     im_in = cv2.imread(filename)
     im_out = cv2.imread(filename)
     im_gray = cv2.cvtColor(im_in,cv2.COLOR_BGR2GRAY)
@@ -38,19 +41,23 @@ def hough(filename):
         y1 = int(y0 + 1000*(a))
         x2 = int(x0 - 1000*(-b))
         y2 = int(y0 - 1000*(a))
-        if rho > 2200:
-            print(rho, theta*180/np.pi)
+        if rho > 2200 and np.abs(90 - theta*180/np.pi) < 3:
+            #print(rho, theta*180/np.pi)
             thetas.append(theta*180/np.pi)
         cv2.line(im_out,(x1,y1),(x2,y2),(0,0,255),2)
-    show(im_out)
+    #show(im_out)
     degree = np.average(thetas) - 90
     print(degree)
-    im = rotate(im_in, degree)
-    cv2.imwrite("hoge.png", im)
+    if degree > 0.5:
+        im = rotate(im_in, degree)
+        cv2.imwrite("hoge.png", im)
 
 def main():
-    filename = 'test/test16.png'
-    hough(filename)
+    directory = './test'
+    paths = Path(directory).resolve()
+    for path in paths.iterdir():
+        if path.suffix == '.png': 
+            hough(path)
 
 if __name__ == '__main__':
     main()
