@@ -121,7 +121,7 @@ def estimate(xs, ys, h):
         store(xs, ys)
         return xs, ys
     elif n != 0:
-        print('estimated.')
+        #print('estimated.')
         xs_ = map(lambda x:x/n, nxs)
         ys_ = map(lambda y:y/n, nys)
         yoffset = ys_[7] - ys_[0]
@@ -133,16 +133,32 @@ def estimate(xs, ys, h):
     else:
         return xs, ys
 
-def detect_slope(im_gray):
-    pass
+def detect_slope(im_gray, im_out):
+    global y1
+    if y1:
+        y = np.average(y1)
+    else:
+        y = 2267
+    lines = hough(im_gray)
+    if lines is None:
+        return im_out
+    degs = []
+    for rho, theta in lines[0]:
+        degree = theta*180/np.pi
+        if y - 100 < rho < y + 100 and np.abs(90 - degree) < 3:
+            degs.append(degree)
+    rot = np.average(degs) - 90
+    print(rot)
+    if rot > 0.5:
+        return rotate(im_out, rot)
 
 def crop(path, exception=False, firstpath=False):
     filename = path.as_posix()
     print(filename)
     im_in = cv2.imread(filename)
     h, w, _ = im_in.shape
-    im_out = cv2.imread(filename)
     im_gray = cv2.cvtColor(im_in, cv2.COLOR_BGR2GRAY)
+    im_out = cv2.imread(filename)
     im = cv2.GaussianBlur(im_gray, (5,5), 0)
     
     yoko = (im.sum(0)/w).tolist()
@@ -158,6 +174,7 @@ def crop(path, exception=False, firstpath=False):
 
     if not exception:
         xs, ys = estimate(xs, ys, h)
+        im_out = detect_slope(im_gray, im_out)
     if firstpath:
         return
     
@@ -203,7 +220,7 @@ def main():
                 crop(p, exception=True, firstpath=True)
             else:
                 crop(p, firstpath=True)
-
+    return
     for p in paths:
         if(p.suffix in ('.png', '.jpg')):
             no = int(p.stem.replace('_',''))
