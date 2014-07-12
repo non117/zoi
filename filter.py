@@ -11,7 +11,7 @@ def LUT(gam):
 
 lut = LUT(1/1.6)
 def main():
-    directory = './test'
+    directory = './yuyushiki2'
     paths = Path(directory).resolve()
     for path in paths.iterdir():
         if path.suffix == '.png':

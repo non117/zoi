@@ -23,7 +23,7 @@ def diff(seq):
 
 def rotate(im, angle):
     # 大回転
-    h, w, _ = im.shape
+    h, w = im.shape[0], im.shape[1]
     mat = cv2.getRotationMatrix2D((h/2, w/2), angle, 1)
     return cv2.warpAffine(im, mat, (w, h)) 
 
@@ -60,7 +60,7 @@ def clean(seq):
 def determine(seq):
     # ヒストグラムの微分値から濃淡変化の大きい行, 列を探す
     xs = []
-    th = max(seq) / 2.07
+    th = max(seq) / 2
     for i, x in enumerate(seq):
         if np.abs(x) > th:
             xs.append(i)
@@ -118,7 +118,7 @@ def estimate(xs, ys, h):
     # コマ座標が抽出できていればそのまま、なければ推定する
     global nxs, nys, n
     if len(ys) == 8 and len(xs) == 4:
-        store(xs, ys)
+    #    store(xs, ys)
         return xs, ys
     elif n != 0:
         #print('estimated.')
@@ -133,7 +133,7 @@ def estimate(xs, ys, h):
     else:
         return xs, ys
 
-def detect_slope(im_gray, im_out):
+def detect_angle(im_gray):
     global y1
     if y1:
         y = np.average(y1)
@@ -141,16 +141,39 @@ def detect_slope(im_gray, im_out):
         y = 2267
     lines = hough(im_gray)
     if lines is None:
-        return im_out
+        return 0
     degs = []
     for rho, theta in lines[0]:
         degree = theta*180/np.pi
         if y - 100 < rho < y + 100 and np.abs(90 - degree) < 3:
             degs.append(degree)
     rot = np.average(degs) - 90
-    print(rot)
-    if rot > 0.5:
-        return rotate(im_out, rot)
+    if np.abs(rot) > 0.1:
+        print(rot)
+        return rot
+    return 0
+
+def statistics(path, exception=False):
+    filename = path.as_posix()
+    print(filename)
+    im_in = cv2.imread(filename)
+    h, w, _ = im_in.shape
+    im_gray = cv2.cvtColor(im_in, cv2.COLOR_BGR2GRAY)
+    im = cv2.GaussianBlur(im_gray, (5,5), 0)
+    
+    if not exception:
+        angle = detect_angle(im_gray)
+        if angle != 0:
+            im = rotate(im, angle)
+
+    yoko = (im.sum(0)/w).tolist()
+    tate = (im.sum(1)/h).tolist()
+    xs = determine(diff(yoko))
+    ys = determine(diff(tate))
+
+    if not exception and angle == 0 and len(ys) == 8 and len(xs) == 4:
+        #xs, ys = estimate(xs, ys, h)
+        store(xs, ys) 
 
 def crop(path, exception=False, firstpath=False):
     filename = path.as_posix()
@@ -160,26 +183,25 @@ def crop(path, exception=False, firstpath=False):
     im_gray = cv2.cvtColor(im_in, cv2.COLOR_BGR2GRAY)
     im_out = cv2.imread(filename)
     im = cv2.GaussianBlur(im_gray, (5,5), 0)
-    
+
+    if not exception:
+        angle = detect_angle(im_gray)
+        if angle != 0:
+            im = rotate(im, angle)
+            im_out = rotate(im_out, angle)
+
     yoko = (im.sum(0)/w).tolist()
     tate = (im.sum(1)/h).tolist()
     xs = determine(diff(yoko))
     ys = determine(diff(tate))
 
-    # debug
-    #plt.clf()
-    #plt.plot(diff(yoko))
-    #plt.plot(diff(tate))
-    #plt.savefig((path.parent/'graph{0}'.format(path.name)).as_posix())
-
     if not exception:
         xs, ys = estimate(xs, ys, h)
-        im_out = detect_slope(im_gray, im_out)
-    if firstpath:
-        return
-    
+
     # debug
-    if True:
+    DEBUG = True
+    #DEBUG = False
+    if DEBUG:
         for x in xs:
             cv2.line(im_out, (x, 0), (x, h), (0,0,255), 2)
         for y in ys:
@@ -187,7 +209,7 @@ def crop(path, exception=False, firstpath=False):
         new_path = path.parent / 'test{0}'.format(path.name)
         cv2.imwrite(new_path.as_posix(), im_out)
         return
-    
+
     name, ext = path.stem, path.suffix
     new_dir = path.parent / 'output' 
     new_suffix = '{0}_{1}'.format(path.parent.name, name)
@@ -217,10 +239,9 @@ def main():
         if(p.suffix in ('.png', '.jpg')):
             no = int(p.stem.replace('_',''))
             if no in exception_pages:
-                crop(p, exception=True, firstpath=True)
+                statistics(p, exception=True)
             else:
-                crop(p, firstpath=True)
-    return
+                statistics(p)
     for p in paths:
         if(p.suffix in ('.png', '.jpg')):
             no = int(p.stem.replace('_',''))
