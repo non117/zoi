@@ -4,6 +4,8 @@ import numpy as np
 import pylab as plt
 from pathlib import Path
 
+#TODO OverflowError: signed integer is less than minimum がなおらない
+
 def show(im):
     # debug用
     b, g, r = cv2.split(im)
@@ -36,6 +38,8 @@ def drow_line(im,x1,y1,x2,y2,th):
     # 直線を描画
     for i in range(x1.size):
         # 検出した直線の長さがthpixcel以上なら,直線を描く
+        if x1[i] > 10e5 or x2[i] > 10e5 or y1[i] > 10e5 or y2[i] > 10e5:
+            continue
         if abs(x1[i]-x2[i])>th or abs(y1[i]-y2[i])>th:
             cv2.line(im,(x1[i],y1[i]),(x2[i],y2[i]),(0,0,255), 5, 10)
  
