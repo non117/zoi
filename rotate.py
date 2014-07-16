@@ -4,19 +4,9 @@ import numpy as np
 import pylab as plt
 from pathlib import Path
 
+from lib import show, rotate
+
 #TODO OverflowError: signed integer is less than minimum がなおらない
-
-def show(im):
-    # debug用
-    b, g, r = cv2.split(im)
-    im = cv2.merge([r,g,b])
-    plt.imshow(im)
-    plt.show()
-
-def rotate(im, angle):
-    h, w, _ = im.shape
-    mat = cv2.getRotationMatrix2D((h/2, w/2), angle, 1)
-    return cv2.warpAffine(im, mat, (w, h))
 
 def point_line(im_edge,hough):
     lines = cv2.HoughLinesP(im_edge,1,np.pi/180,hough)
@@ -36,12 +26,13 @@ def point_line(im_edge,hough):
 
 def drow_line(im,x1,y1,x2,y2,th):
     # 直線を描画
+    h, w = im.shape[0], im.shape[1]
     for i in range(x1.size):
         # 検出した直線の長さがthpixcel以上なら,直線を描く
-        if x1[i] > 10e5 or x2[i] > 10e5 or y1[i] > 10e5 or y2[i] > 10e5:
-            continue
-        if abs(x1[i]-x2[i])>th or abs(y1[i]-y2[i])>th:
-            cv2.line(im,(x1[i],y1[i]),(x2[i],y2[i]),(0,0,255), 5, 10)
+        #print(x1[i],x2[i],y1[i],y2[i])
+        if 0<x1[i]<w and 0<x2[i]<w and 0<y1[i]<h and 0<y2[i]<h:
+            if abs(x1[i]-x2[i])>th or abs(y1[i]-y2[i])>th:
+                cv2.line(im,(x1[i],y1[i]),(x2[i],y2[i]),(0,0,255), 5, 10)
  
     return im
 
@@ -58,8 +49,8 @@ def houghP(path):
     im_th = cv2.adaptiveThreshold(im_gray,50,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,cv2.THRESH_BINARY,11,2)
     # 2値化画像からエッジを検出
     im_edge = cv2.Canny(im_th,50,150,apertureSize = 3) 
-    x1,y1,x2,y2 = point_line(im_edge,hough=30)
-    im_out = drow_line(im_out,x1,y1,x2,y2,th=20)
+    x1,y1,x2,y2 = point_line(im_edge,hough=300)
+    im_out = drow_line(im_out,x1,y1,x2,y2,th=290)
     cv2.imwrite((path.parent/'hough{0}'.format(path.name)).as_posix(), im_out) 
 
 def hough(path):

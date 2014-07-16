@@ -2,12 +2,7 @@ import cv2
 import numpy as np
 from pathlib import Path
 
-def LUT(gam):
-    table = np.zeros((1,256,3),np.uint8)
-    for j in range(256):
-        x = int( 255.*( j / 255. )**( 1./gam ) )
-        table[0,j] = tuple([x, x, x])
-    return table
+from lib import LUT
 
 lut = LUT(1/1.6)
 def main():

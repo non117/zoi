@@ -5,38 +5,7 @@ import pylab as plt
 
 from pathlib import Path
 
-def show(im):
-    # debug用
-    b, g, r = cv2.split(im)
-    im = cv2.merge([r,g,b])
-    plt.imshow(im)
-    plt.show()
-
-def diff(seq):
-    # 微分
-    prev = seq[0]
-    new_seq = []
-    for x in seq:
-        new_seq.append(prev - x)
-        prev = x
-    return new_seq
-
-def rotate(im, angle):
-    # 大回転
-    h, w = im.shape[0], im.shape[1]
-    mat = cv2.getRotationMatrix2D((h/2, w/2), angle, 1)
-    return cv2.warpAffine(im, mat, (w, h)) 
-
-def hough(im_gray, threshold=300):
-    # ノイズ除去
-    im_gray = cv2.medianBlur(im_gray, 5)
-    # グレースケール画像を2値化
-    im_th = cv2.adaptiveThreshold(im_gray,50,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,cv2.THRESH_BINARY,11,2)
-    # 2値化画像からエッジを検出
-    im_edge = cv2.Canny(im_th,50,150,apertureSize = 3)
-    # エッジ画像から直線の検出
-    lines = cv2.HoughLines(im_edge,1,np.pi/180,threshold)
-    return lines
+from lib import show, diff, rotate, hough
 
 def clean(seq):
     # 連続した値から代表値を抽出する
