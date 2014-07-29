@@ -102,26 +102,6 @@ def estimate(xs, ys, h):
     else:
         return xs, ys
 
-def detect_angle(im_gray):
-    global y1
-    if y1:
-        y = np.average(y1)
-    else:
-        y = 2267
-    lines = hough(im_gray)
-    if lines is None:
-        return 0
-    degs = []
-    for rho, theta in lines[0]:
-        degree = theta*180/np.pi
-        if y - 100 < rho < y + 100 and np.abs(90 - degree) < 3:
-            degs.append(degree)
-    rot = np.average(degs) - 90
-    if np.abs(rot) > 0.1:
-        print(rot)
-        return rot
-    return 0
-
 def statistics(path, exception=False):
     filename = path.as_posix()
     print(filename)
@@ -130,17 +110,12 @@ def statistics(path, exception=False):
     im_gray = cv2.cvtColor(im_in, cv2.COLOR_BGR2GRAY)
     im = cv2.GaussianBlur(im_gray, (5,5), 0)
     
-    if not exception:
-        angle = detect_angle(im_gray)
-        if angle != 0:
-            im = rotate(im, angle)
-
     yoko = (im.sum(0)/w).tolist()
     tate = (im.sum(1)/h).tolist()
     xs = determine(diff(yoko))
     ys = determine(diff(tate))
 
-    if not exception and angle == 0 and len(ys) == 8 and len(xs) == 4:
+    if not exception and len(ys) == 8 and len(xs) == 4:
         #xs, ys = estimate(xs, ys, h)
         store(xs, ys) 
 
@@ -152,12 +127,6 @@ def crop(path, exception=False, firstpath=False):
     im_gray = cv2.cvtColor(im_in, cv2.COLOR_BGR2GRAY)
     im_out = cv2.imread(filename)
     im = cv2.GaussianBlur(im_gray, (5,5), 0)
-
-    if not exception:
-        angle = detect_angle(im_gray)
-        if angle != 0:
-            im = rotate(im, angle)
-            im_out = rotate(im_out, angle)
 
     yoko = (im.sum(0)/w).tolist()
     tate = (im.sum(1)/h).tolist()
@@ -195,9 +164,9 @@ def crop(path, exception=False, firstpath=False):
                 cnt += 1
 
 def main():
-    dirname = 'yuyushiki2'
+    dirname = 'yuyushiki3'
     exception_pages = range(1,12) + [] + range(120,127)
-    errors = [17]
+    errors = [13,16,17,19,20,21,28,32]
     path = Path(dirname)
     try:
         (path / 'output').mkdir(mode=0o755)
