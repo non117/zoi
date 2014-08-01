@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import sys
+
 import cv2
 import numpy as np
 import pylab as plt
@@ -164,7 +166,7 @@ def crop(path, exception=False, firstpath=False):
                 cnt += 1
 
 def main():
-    dirname = 'yuyushiki3'
+    dirname = sys.argv[1]#'yuyushiki3'
     exception_pages = range(1,12) + [] + range(120,127)
     errors = [13,16,17,19,20,21,28,32]
     path = Path(dirname)

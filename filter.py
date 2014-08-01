@@ -1,3 +1,5 @@
+import sys
+
 import cv2
 import numpy as np
 from pathlib import Path
@@ -6,7 +8,7 @@ from lib import LUT
 
 lut = LUT(1/1.6)
 def main():
-    directory = './yuyushiki3'
+    directory = sys.argv[1]#'./yuyushiki3'
     paths = Path(directory).resolve()
     for path in paths.iterdir():
         if path.suffix == '.png':
