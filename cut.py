@@ -139,8 +139,8 @@ def crop(path, exception=False, firstpath=False):
         xs, ys = estimate(xs, ys, h)
 
     # debug
-    DEBUG = True
-    #DEBUG = False
+    #DEBUG = True
+    DEBUG = False
     if DEBUG:
         for x in xs:
             cv2.line(im_out, (x, 0), (x, h), (0,0,255), 2)
@@ -168,7 +168,7 @@ def crop(path, exception=False, firstpath=False):
 def main():
     dirname = sys.argv[1]#'yuyushiki3'
     exception_pages = range(1,12) + [] + range(120,127)
-    errors = [13,16,17,19,20,21,28,32]
+    errors = []
     path = Path(dirname)
     try:
         (path / 'output').mkdir(mode=0o755)
